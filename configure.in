@@ -387,6 +387,11 @@ fi
 NATIVE_LIBS_ENABLED=
 if test X${enable_native_libs} = Xyes -a X${enable_hipe} != Xno; then
   NATIVE_LIBS_ENABLED=yes
+  touch $ERL_TOP/lib/compiler/src/*.erl
+  touch $ERL_TOP/lib/kernel/src/*.erl
+  touch $ERL_TOP/lib/stdlib/src/*.erl
+  touch $ERL_TOP/lib/dialyzer/src/*.erl
+  touch $ERL_TOP/lib/syntax_tools/src/*.erl
 fi
 AC_SUBST(NATIVE_LIBS_ENABLED)
 
