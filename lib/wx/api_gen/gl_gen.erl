@@ -59,17 +59,18 @@ gen_code() ->
     {ok, Opts0} = file:consult("glapi.conf"),
     erase(func_id),
     Opts = init_defs(Opts0),
-    GLUDefs = parse_glu_defs(Opts),   
-    GLDefs  = parse_gl_defs(Opts),    
+    GLUDefs = parse_glu_defs(Opts),
+    GLDefs  = parse_gl_defs(Opts),
     {GLUDefines,GLUFuncs} = setup(GLUDefs, Opts),
     {GLDefines,GLFuncs}   = setup(GLDefs, Opts),
-    gl_gen_erl:gl_defines(GLDefines),
-    gl_gen_erl:gl_api(GLFuncs),
     gl_gen_erl:glu_defines(GLUDefines),
-    gl_gen_erl:glu_api(GLUFuncs),
+    GluNifs = gl_gen_erl:glu_api(GLUFuncs),
+    gl_gen_erl:gl_defines(GLDefines),
+    gl_gen_erl:gl_api(GLFuncs, GluNifs),
 
     %%gl_gen_erl:gen_debug(GLFuncs,GLUFuncs),
-    gl_gen_c:gen(GLFuncs,GLUFuncs),
+    %%gl_gen_c:gen(GLFuncs,GLUFuncs),
+    gl_gen_nif:gen(GLFuncs,GLUFuncs),
     ok.
 
 init_defs(Opts0) ->
@@ -129,6 +130,9 @@ get_arg_names(As0) ->
     Args = lists:filter(fun("const") -> false; (_) -> true end, As0),
     get_arg_names(Args, []).
 
+get_arg_names([_Type,Name, Int],Acc) ->
+    true = is_integer(erlang:list_to_integer(Int)), %% assert
+    reverse([Name|Acc]);
 get_arg_names([_Type,Name|R],Acc) ->
     get_arg_names(R, [Name|Acc]);
 get_arg_names([],Acc) -> reverse(Acc);
@@ -160,8 +164,7 @@ parse_file(#xmlElement{name=memberdef,attributes=Attr, content=C}, Opts, Acc) ->
 	    try 
 		Def = parse_func(C, Opts),
 		[Def|Acc]
-	    catch throw:skip -> Acc
-	    after erase(current_func)
+	    catch throw:skip -> erase(current_func), Acc
 	    end;
 	{value, #xmlAttribute{value = "define"}} -> 
 	    try 
@@ -391,11 +394,13 @@ extract_type_info2("*",   Acc) -> [{by_ref,{pointer,1}}|Acc];
 extract_type_info2("**",  Acc) -> [{by_ref,{pointer,2}}|Acc];
 extract_type_info2(Type,  Acc) -> [Type|Acc].
 
-parse_type2(["void"],  _T, _Opts) ->  void;
 parse_type2([N="void", const|R], T, Opts) ->
     parse_type2([const|R],T#type{name=N, base=idx_binary},Opts);
 parse_type2([N="void"|R],  T, Opts) ->
-    parse_type2(R,T#type{name=N},Opts);
+    case #type{} of
+        T -> void;
+        _ -> parse_type2(R,T#type{name=N},Opts)
+    end;
 parse_type2([const|R],T=#type{mod=Mod},Opts) -> 
     parse_type2(R,T#type{mod=[const|Mod]},Opts);
 parse_type2(["unsigned"|R],T=#type{mod=Mod},Opts) -> 
@@ -589,7 +594,7 @@ lookup(Name,[_|R],Def) ->
     lookup(Name,R,Def);
 lookup(_,[], Def) -> Def.
     
-setup_idx_binary(Name,Ext, Opts) ->
+setup_idx_binary(Name,Ext, _Opts) ->
     FuncName = Name ++ Ext,
     Func = #func{params=Args} = get(FuncName),
     Id = next_id(function),
