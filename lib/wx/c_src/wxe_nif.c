@@ -160,6 +160,13 @@ static ERL_NIF_TERM wxe_debug_driver(ErlNifEnv* env, int argc, const ERL_NIF_TER
 }
 
 
+static ERL_NIF_TERM wxe_get_consts(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    meta_command(env, WXE_GET_CONSTS, NULL);
+    return WXE_ATOM_ok;
+}
+
+
 // Callback
 static void wxe_destroy_env(ErlNifEnv* env, void *obj)
 {
@@ -191,7 +198,8 @@ static ErlNifFunc nif_funcs[] =
     {"init_opengl", 1, wx_init_opengl},
     {"make_env", 0, wxe_make_env},
     {"delete_env", 1, wxe_delete_env},
-    {"debug_driver", 1, wxe_debug_driver}
+    {"debug_driver", 1, wxe_debug_driver},
+    {"get_consts_impl", 0, wxe_get_consts}
 };
 
 void wxe_init_atoms(ErlNifEnv *env) {

@@ -419,8 +419,16 @@ listCtrlVirtual(Config) ->
     Frame = wxFrame:new(Wx, ?wxID_ANY, "Frame"),
     IA = wxListItemAttr:new(),
     wxListItemAttr:setTextColour(IA, {190, 25, 25}),
+    Style = ?wxLC_SINGLE_SEL bor ?wxLC_REPORT bor ?wxLC_VIRTUAL bor
+        ?wxLC_HRULES bor ?wxHSCROLL bor ?wxVSCROLL,
+    %% Assert signed consts (wxVSCROLL)
+    Style = wxe_util:get_const(wxLC_SINGLE_SEL) bor wxe_util:get_const(wxLC_REPORT) bor
+        wxe_util:get_const(wxLC_VIRTUAL) bor wxe_util:get_const(wxLC_HRULES) bor wxe_util:get_const(wxHSCROLL)
+        bor wxe_util:get_const(wxVSCROLL),
+
+    wx:debug(driver),
     LC = wxListCtrl:new(Frame,
-			[{style, ?wxLC_REPORT bor ?wxLC_VIRTUAL},
+			[{style, Style},
 			 {onGetItemText, fun(_This, Item, 0) ->
 						 "Row " ++ integer_to_list(Item);
 					    (_, Item, 1) when Item rem 5 == 0 ->

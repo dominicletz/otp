@@ -82,6 +82,7 @@ extern ERL_NIF_TERM WXE_ATOM_wxPrintDialogData;
 #define WXE_SHUTDOWN        13
 #define WXE_DEBUG_PING      14
 #define WXE_DELETE_ENV      15
+#define WXE_GET_CONSTS      16
 
 // Taylormade functions
 
@@ -102,6 +103,7 @@ int wxe_get_double(ErlNifEnv* env, ERL_NIF_TERM term, double* dp);
 void push_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[], int op, wxe_me_ref * mp);
 void meta_command(ErlNifEnv* env, int op, wxe_me_ref * mr);
 void * newMemEnv(ErlNifEnv* env, wxe_me_ref *);
+ERL_NIF_TERM impl_get_consts(ErlNifEnv* env);
 
 /* wxe_main functions */
 
