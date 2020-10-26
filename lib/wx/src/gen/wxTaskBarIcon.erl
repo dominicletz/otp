@@ -18,14 +18,6 @@
 %% %CopyrightEnd%
 %% This file is generated DO NOT EDIT
 
-%% @doc See external documentation: <a href="http://www.wxwidgets.org/manuals/2.8.12/wx_wxtaskbaricon.html">wxTaskBarIcon</a>.
-%% <p>This class is derived (and can use functions) from:
-%% <br />{@link wxEvtHandler}
-%% </p>
-%% @type wxTaskBarIcon().  An object reference, The representation is internal
-%% and can be changed without notice. It can't be used for comparsion
-%% stored on disc or distributed for use on other nodes.
-
 -module(wxTaskBarIcon).
 -include("wxe.hrl").
 -export([ new/0, new/1 ,destroy/1,popupMenu/2,removeIcon/1,setIcon/2,setIcon/3]).
@@ -33,12 +25,12 @@
 %% inherited exports
 -export([connect/2,connect/3,disconnect/1,disconnect/2,disconnect/3,parent_class/1]).
 
+-type wxTaskBarIcon() :: wx:wx_object().
 -export_type([wxTaskBarIcon/0]).
 %% @hidden
 parent_class(wxEvtHandler) -> true;
 parent_class(_Class) -> erlang:error({badtype, ?MODULE}).
 
--type wxTaskBarIcon() :: wx:wx_object().
 
 -spec new() -> wxTaskBarIcon().
 new() ->
